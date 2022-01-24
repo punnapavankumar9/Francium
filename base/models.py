@@ -38,4 +38,7 @@ class Message(models.Model):
         if(len(self.body) > 50):
             return self.body[0:50]
         return self.body
+    
+    class Meta:
+        ordering = ['-updated', '-created']
 

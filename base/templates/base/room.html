@@ -25,6 +25,9 @@
                 <div>
                     {%  for msg in msgs  %}
                     <div>
+                        {%  if request.user == msg.user  %}
+                            <a href="{%  url 'base:delete-message' msg.id  %}">Delete</a>
+                        {%  endif  %}
                         
                         @{{  msg.user  }} {{  msg.created|timesince }} ago
                         <br>
@@ -45,10 +48,9 @@
             <h2>Participants</h2>
             {%  for participant in participants  %}
             <div>
-                @{{  participant.username  }}
+                <a href="{%  url 'base:profile' participant.id  %}">@{{  participant.username  }}</a>
             </div>
             {%  endfor  %}
-
         </div>
     </div>
 

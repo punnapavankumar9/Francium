@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
+from django.template import context
 from base.models import Room, Topic , Message
 from base.forms import RoomForm
 # Create your views here.
@@ -27,14 +28,23 @@ def home(request):
                 Q(description__icontains = q)
             )
 
-
+    room_messages = Message.objects.filter(Q(room__topic__name__icontains = q))
     topics = Topic.objects.all()
-    context = {'rooms':rooms, 'topics':topics, 'room_count':rooms.count()}
+    context = {'rooms':rooms, 'topics':topics, 'room_count':rooms.count(), 'room_messages':room_messages}
     return render(request, 'base/home.html', context)
 
 
 def about(request):
     return render(request, 'base/about.html')
+
+def profile_view(request, pk):
+    user = get_object_or_404(User, id=pk)
+    rooms = user.room_set.all()
+
+    room_messages = user.message_set.all()
+    topics = Topic.objects.all()
+    context = {'user':user,'rooms':rooms, 'room_messages':room_messages, 'topics':topics}
+    return render(request, 'base/profile.html', context)
 
 def room(request, pk):
     room = get_object_or_404(Room, id=pk)
@@ -48,7 +58,7 @@ def room(request, pk):
         room.participants.add(request.user)
         return redirect('base:room', pk=room.id)
 
-    room_messages = room.message_set.all().order_by('-updated')
+    room_messages = room.message_set.all()
     participants = room.participants.all()
     context = {'room':room, 'msgs':room_messages, 'participants':participants}
     return render(request, 'base/room.html', context)
@@ -145,3 +155,13 @@ def register_view(request):
 
     context = {'page':page, 'form':form}
     return render(request, 'base/forms/login_register.html', context)
+
+@login_required
+def delete_message(request, pk):
+    msg = get_object_or_404(Message, id=pk)
+    if(request.user  != msg.user):
+        return HttpResponse("Your are not allowed here!")
+    if(request.method == 'POST'):
+        msg.delete()
+        return redirect('base:home')
+    return render(request, 'base/forms/delete.html', {'obj':msg})
