@@ -1,0 +1,57 @@
+{%  extends 'base.html'  %}
+
+{% block extra_title %}
+    {{  room.id  }}
+{% endblock extra_title %}
+
+{% block extra_head %}
+    <style>
+        .room-container{
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+        }
+    </style>
+{% endblock extra_head %}
+
+{% block body %}
+    <div class="room-container">
+        <div>
+            <div>
+                <h1> {{  room.name  }} </h1>
+                <p> {{  room.description  }}</p>
+            </div>
+            <div>
+                <h2>Conversations</h2>
+                <div>
+                    {%  for msg in msgs  %}
+                    <div>
+                        
+                        @{{  msg.user  }} {{  msg.created|timesince }} ago
+                        <br>
+                        {{  msg.body  }}
+                        
+                    </div>
+                    {%  endfor  %}
+                    {%  if request.user.is_authenticated  %}
+                        <form action="" method="post">
+                            {%  csrf_token  %}
+                            <input type="text" name="msg_body" placeholder="Enter Message ...">
+                        </form>
+                    {%  endif  %}
+                </div>
+            </div>
+        </div>
+        <div>
+            <h2>Participants</h2>
+            {%  for participant in participants  %}
+            <div>
+                @{{  participant.username  }}
+            </div>
+            {%  endfor  %}
+
+        </div>
+    </div>
+
+
+
+{% endblock body %}
