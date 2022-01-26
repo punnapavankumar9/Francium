@@ -88,7 +88,7 @@
               <p>Hosted By</p>
               <a href="{%  url 'base:profile' room.host.id %}" class="room__author">
                 <div class="avatar avatar--small">
-                  <img src="https://randomuser.me/api/portraits/men/37.jpg" />
+                  <img src="{{  room.host.avatar.url  }}" />
                 </div>
                 <span>@{{  room.host.username  }}</span>
               </a>
@@ -138,7 +138,7 @@
         <div class="room__message">
             <form  method="POST" action="#">
                 {%  csrf_token  %}
-                <input required type="text" name="msg_body" placeholder="Write your message here...">
+                <input autofocus required type="text" name="msg_body" placeholder="Write your message here...">
             </form>
         </div>
         {%  endif  %}

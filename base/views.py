@@ -1,16 +1,12 @@
-from asyncio.windows_events import NULL
-from pydoc import describe
+from importlib.metadata import requires
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import  get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import UserCreationForm
-from django.template import context
-from base.models import Room, Topic , Message
-from base.forms import RoomForm, UserForm
+from base.models import Room, Topic , Message, User
+from base.forms import RoomForm, UserForm, CustomUserCreationForm
 # Create your views here.
 
 # rooms = [
@@ -29,7 +25,7 @@ def home(request):
                 Q(description__icontains = q)
             )
 
-    room_messages = Message.objects.filter(Q(room__topic__name__icontains = q))
+    room_messages = Message.objects.filter(Q(room__topic__name__icontains = q))[:5]
     topics_count = Topic.objects.count()
     topics = Topic.objects.all()[:5]
     context = {'rooms':rooms, 'topics':topics, 'room_count':rooms.count(), 'room_messages':room_messages, 'topics_count':topics_count}
@@ -42,10 +38,10 @@ def about(request):
 def profile_view(request, pk):
     user = get_object_or_404(User, id=pk)
     rooms = user.room_set.all()
-
+    topics_count = Topic.objects.count()
     room_messages = user.message_set.all()
     topics = Topic.objects.all()[:5]
-    context = {'user':user,'rooms':rooms, 'room_messages':room_messages, 'topics':topics}
+    context = {'user':user,'rooms':rooms, 'room_messages':room_messages, 'topics':topics, 'topics_count' : topics_count}
     return render(request, 'base/profile.html', context)
 
 def room(request, pk):
@@ -65,7 +61,7 @@ def room(request, pk):
             room.participants.add(request.user)
             return redirect('base:room', pk=room.id)
 
-    room_messages = room.message_set.all()
+    room_messages = room.message_set.all().order_by('created')
     participants = room.participants.all()
     context = {'room':room, 'msgs':room_messages, 'participants':participants}
     return render(request, 'base/room.html', context)
@@ -140,17 +136,17 @@ def login_view(request):
         return redirect('base:home')
 
     if(request.method == 'POST'):
-        username = request.POST.get('username').lower()
+        email = request.POST.get('email').lower()
         password = request.POST.get('password')
         
         try:
-            temp_user = User.objects.get(username=username)
+            temp_user = User.objects.get(email=email)
         except:
             messages.error(request, "User does not exists")
             return render(request, 'base/forms/login_register.html', {})    
             
         
-        user = authenticate(request, username = username, password = password)
+        user = authenticate(request, email = email, password = password)
         if(user is not None):
             login(request, user)
             messages.success(request, "Login success")
@@ -169,9 +165,9 @@ def register_view(request):
     if request.user.is_authenticated:
         return redirect('base:home')
     page = 'register'
-    form = UserCreationForm()
+    form = CustomUserCreationForm()
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if(form.is_valid()):
             user = form.save(commit=False)
             user.username = user.username.lower()
@@ -201,7 +197,7 @@ def delete_message(request, pk):
 def update_user_view(request):
 
     if(request.method == 'POST'):
-        form = UserForm(request.POST, instance=request.user)
+        form = UserForm(request.POST,request.FILES,  instance=request.user)
         if form.is_valid():
             form.save()
             return redirect('base:profile', request.user.id)

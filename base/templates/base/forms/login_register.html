@@ -18,12 +18,12 @@
           <form class="form" method="POST">
               {%  csrf_token  %}
             <div class="form__group form__group">
-              <label for="username">Username</label>
-              <input id="username" name="username" type="text" placeholder="e.g. pavan_punna123" />
+              <label for="email">Email</label>
+              <input autofocus autocomplete="off" spellcheck="false" id="email" name="email" type="email" placeholder="Enter Your Email.." />
             </div>
             <div class="form__group">
               <label for="password">Password</label>
-              <input id="password" name="password" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" />
+              <input autocomplete="off" id="password" name="password" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" />
             </div>
 
             <button class="btn btn--main" type="submit">
