@@ -1177,3 +1177,8 @@ a {
   margin: 0px auto;
   transform: translate(0%, 0%);
 }
+.more-activities{
+  width: 100%;
+  padding: 0px 10px 10px 50px;
+
+}

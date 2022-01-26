@@ -6,7 +6,7 @@
         <div class="layout__box">
             <div class="layout__boxHeader">
                 <div class="layout__boxTitle">
-                    <a href="profile.html">
+                    <a href="{% url 'base:profile' request.user.id %}">
                         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32"
                             viewBox="0 0 32 32">
                             <title>arrow-left</title>
@@ -19,12 +19,8 @@
                 </div>
             </div>
             <div class="layout__body">
-                <form class="form" method="POST">
+                <form class="form" method="POST" enctype="multipart/form-data">
                     {%  csrf_token  %}
-                    <!-- <div class="form__group">
-                        <label for="profile_pic">Avatar</label>
-                        <input id="profile_pic" name="profile_pic" type="file" />
-                    </div> -->
 
                     {%  for field in form  %}
                     <div class="form__group">
