@@ -40,7 +40,8 @@ INSTALLED_APPS = [
 
     # User apps
     'base.apps.BaseConfig',
-
+    'accounts.apps.AccountsConfig',
+    
 
     # external apps
     'rest_framework',

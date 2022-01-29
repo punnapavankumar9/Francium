@@ -1,4 +1,4 @@
-from importlib.metadata import requires
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import  get_object_or_404, redirect, render
@@ -16,7 +16,6 @@ from base.forms import RoomForm, UserForm, CustomUserCreationForm
 # ]
 
 def home(request):
-
     q= request.GET.get('q') if request.GET.get('q') != None else ""
 
     rooms = Room.objects.filter(
@@ -24,11 +23,16 @@ def home(request):
                 Q(name__icontains = q)|
                 Q(description__icontains = q)
             )
-
+    room_count = rooms.count()
+    paginator = Paginator(rooms, 2)
+    page_number = request.GET.get('page')
+    # if(page_number is not None)
+    rooms = paginator.get_page(page_number)
     room_messages = Message.objects.filter(Q(room__topic__name__icontains = q))[:5]
     topics_count = Topic.objects.count()
     topics = Topic.objects.all()[:5]
-    context = {'rooms':rooms, 'topics':topics, 'room_count':rooms.count(), 'room_messages':room_messages, 'topics_count':topics_count}
+    context = {'rooms':rooms, 'topics':topics, 'room_count':room_count, 'room_messages':room_messages, 'topics_count':topics_count}
+    # messages.info(request, "dsd adsa adsd asd ads")
     return render(request, 'base/home.html', context)
 
 
@@ -159,6 +163,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
+    messages.info(request, "Logout success")
     return redirect('base:home')
 
 def register_view(request):
