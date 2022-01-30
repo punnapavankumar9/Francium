@@ -36,7 +36,7 @@
                 <h3>{{ user.username }}</h3>
                 <p>@{{  user.username  }}</p>
                 {%  if user == request.user  %}
-                <a href="{%  url 'base:update-user'  %}" class="btn btn--main btn--pill">Edit Profile</a>
+                <a href="{%  url 'accounts:update-user'  %}" class="btn btn--main btn--pill">Edit Profile</a>
                 {%  endif  %}
               </div>
               <div class="profile__about">
