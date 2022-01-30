@@ -10,17 +10,4 @@ class RoomForm(ModelForm):
         fields = '__all__'
         exclude = ['host', 'participants']
 
-class UserForm(ModelForm):
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'avatar', 'name', 'bio',]
 
-class CustomUserCreationForm(UserCreationForm):
-    class Meta:
-        model = User
-        fields = ('name','username', 'email', 'password1', 'password2',)
-
-class CustomUserChangeForm(UserChangeForm):
-    class Meta:
-        model = User
-        fields = '__all__'

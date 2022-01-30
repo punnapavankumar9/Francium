@@ -22,7 +22,7 @@
             {%  for msg in room_messages  %}
                 <div class="activities__box">
                     <div class="activities__boxHeader roomListRoom__header">
-                        <a href="{%  url 'base:profile' msg.user.id %}" class="roomListRoom__author">
+                        <a href="{%  url 'accounts:profile' msg.user.id %}" class="roomListRoom__author">
                             <div class="avatar avatar--small">
                                 <img src="{{  msg.user.avatar.url  }}" />
                             </div>

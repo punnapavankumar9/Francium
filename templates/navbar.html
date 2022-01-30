@@ -24,7 +24,7 @@
         
         {%  if request.user.is_authenticated  %}
         <div class="header__user">
-          <a href="{%  url 'base:profile' request.user.id %}">
+          <a href="{%  url 'accounts:profile' request.user.id %}">
             <div class="avatar avatar--medium active">
               <img src="{{  request.user.avatar.url  }}" />
             </div>
@@ -41,7 +41,7 @@
         {%  else  %}
 
         <!-- Not Logged In -->
-         <a href="{%  url 'base:login'  %}"> 
+         <a href="{%  url 'accounts:login'  %}"> 
           <img src="{%  static 'images/avatar.svg' %}" />
           <p>Login</p>
         </a>
@@ -58,7 +58,7 @@
             </svg>
             Settings</a
           >
-          <a href="{%  url 'base:logout'  %}" class="dropdown-link"
+          <a href="{%  url 'accounts:logout'  %}" class="dropdown-link"
             ><svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
               <title>sign-out</title>
               <path

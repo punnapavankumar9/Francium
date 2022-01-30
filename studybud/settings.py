@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,13 +41,15 @@ INSTALLED_APPS = [
 
     # User apps
     'base.apps.BaseConfig',
+    'accounts.apps.AccountsConfig',
 
 
     # external apps
     'rest_framework',
 
 ]
-AUTH_USER_MODEL = 'base.User'
+
+AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -134,10 +137,19 @@ STATICFILES_DIRS = [
 
 MEDIA_ROOT = BASE_DIR / 'media/'
 
-LOGIN_URL='base:login'
+LOGIN_URL='accounts:login'
 LOGIN_REDIRECT_URL='base:home'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'punnapavankumar9@gmail.com'
+EMAIL_HOST_PASSWORD = str(os.environ.get('MAIL_PASSWORD'))

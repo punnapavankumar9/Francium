@@ -30,7 +30,12 @@
     {%  if messages  %}
         <ul class="meassage">
             {%  for msg in  messages  %}
-                <li>{{  msg  }}</li>
+                <div id="snackbar" kk="msg_{{  msg.tags  }}" >{{msg}}</div>
+                <script>
+                    var x = document.getElementById("snackbar");
+                    x.className = "show";
+                    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 5000);
+                </script>
             {%  endfor  %}
         </ul>
 

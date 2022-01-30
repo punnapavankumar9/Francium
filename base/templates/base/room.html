@@ -86,7 +86,7 @@
             </div>
             <div class="room__hosted">
               <p>Hosted By</p>
-              <a href="{%  url 'base:profile' room.host.id %}" class="room__author">
+              <a href="{%  url 'accounts:profile' room.host.id %}" class="room__author">
                 <div class="avatar avatar--small">
                   <img src="{{  room.host.avatar.url  }}" />
                 </div>
@@ -104,7 +104,7 @@
               <div class="thread">
                 <div class="thread__top">
                   <div class="thread__author">
-                    <a href="{%  url 'base:profile' msg.user.id  %}" class="thread__authorInfo">
+                    <a href="{%  url 'accounts:profile' msg.user.id  %}" class="thread__authorInfo">
                       <div class="avatar avatar--small">
                         <img src="https://randomuser.me/api/portraits/men/37.jpg" />
                       </div>
@@ -150,7 +150,7 @@
         <h3 class="participants__top">Participants <span>({{  room.participants.count  }})</span></h3>
         <div class="participants__list scroll">
             {%  for participant in participants  %}
-            <a href="{%  url 'base:profile' participant.id  %}" class="participant">
+            <a href="{%  url 'accounts:profile' participant.id  %}" class="participant">
                 <div class="avatar avatar--medium">
                     <img src="https://randomuser.me/api/portraits/men/37.jpg" />
                 </div>
