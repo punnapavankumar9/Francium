@@ -35,6 +35,14 @@ html {
   html {
     font-size: 62.5%;
   }
+  .password_reset_done{
+    width: 600px;
+  }
+}
+@media only screen and (min-width: 800px) {
+  .password_reset_done{
+    width: 700px !important;
+  }
 }
 
 @media only screen and (min-width: 2100px) {
@@ -1180,7 +1188,6 @@ a {
 .more-activities{
   width: 100%;
   padding: 0px 10px 10px 50px;
-
 }
 #snackbar {
   visibility: hidden;
@@ -1233,4 +1240,17 @@ a {
 @keyframes fadeout {
   from {bottom: 30px; opacity: 1;}
   to {bottom: 0; opacity: 0;}
+}
+.password_reset_done{
+  width: 90vw;
+  height: min-content;
+  background-color: var(--color-dark-medium);
+  margin: 0 auto;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 7px;
+}
+.forgot_password_link{
+  margin-left: 5px;
+  text-decoration: underline !important;
 }
