@@ -1,5 +1,5 @@
 {%  extends 'base.html'  %}
-
+{%  load static  %}
 {% block extra_title %}
     {{  room.name  }}
 {% endblock extra_title %}
@@ -99,34 +99,66 @@
             <span class="room__topics">{{  room.topic.name  }}</span>
           </div>
           <div class="room__conversation">
-            <div class="threads scroll">
+            <div class="threads room__messages scroll">
                 {%  for msg in msgs  %}
-              <div class="thread">
-                <div class="thread__top">
-                  <div class="thread__author">
-                    <a href="{%  url 'accounts:profile' msg.user.id  %}" class="thread__authorInfo">
-                      <div class="avatar avatar--small">
-                        <img src="https://randomuser.me/api/portraits/men/37.jpg" />
+                {%  if msg.isImage  %}
+                <div class="thread">
+                  <div class="thread__top">
+                    <div class="thread__author">
+                      <a href="{%  url 'accounts:profile' msg.user.id  %}" class="thread__authorInfo">
+                        <div class="avatar avatar--small">
+                          <img src="{{  msg.user.avatar.url  }}" />
+                        </div>
+                        <span>@{{  msg.user.username  }}</span>
+                      </a>
+                      <span class="thread__date">{{  msg.created|timesince }} ago</span>
+                    </div>
+                    <div class="thread__delete">
+                      <a href="{%  url 'base:delete-message' msg.id %}">
+                        
+                        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                          <title>remove</title>
+                          <path
+                          d="M27.314 6.019l-1.333-1.333-9.98 9.981-9.981-9.981-1.333 1.333 9.981 9.981-9.981 9.98 1.333 1.333 9.981-9.98 9.98 9.98 1.333-1.333-9.98-9.98 9.98-9.981z"
+                          ></path>
+                        </svg>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="thread__details">
+                    <img style="width: 200px;" src="{{  msg.message_image.url  }}" alt="asdad">
+                  </div>
+                </div>
+                {%  else  %}
+                  <div class="thread">
+                    <div class="thread__top">
+                      <div class="thread__author">
+                        <a href="{%  url 'accounts:profile' msg.user.id  %}" class="thread__authorInfo">
+                          <div class="avatar avatar--small">
+                            <img src="{{  msg.user.avatar.url  }}" />
+                          </div>
+                          <span>@{{  msg.user.username  }}</span>
+                        </a>
+                        <span class="thread__date">{{  msg.created|timesince }} ago</span>
                       </div>
-                      <span>@{{  msg.user.username  }}</span>
-                    </a>
-                    <span class="thread__date">{{  msg.created|timesince }} ago</span>
+                      <div class="thread__delete">
+                        <a href="{%  url 'base:delete-message' msg.id %}">
+                          
+                          <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                            <title>remove</title>
+                            <path
+                            d="M27.314 6.019l-1.333-1.333-9.98 9.981-9.981-9.981-1.333 1.333 9.981 9.981-9.981 9.98 1.333 1.333 9.981-9.98 9.98 9.98 1.333-1.333-9.98-9.98 9.98-9.981z"
+                            ></path>
+                          </svg>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="thread__details">{{  msg.body  }}
+                    </div>
                   </div>
-                  <div class="thread__delete">
-                    <a href="{%  url 'base:delete-message' msg.id %}">
-                      
-                      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-                        <title>remove</title>
-                        <path
-                        d="M27.314 6.019l-1.333-1.333-9.98 9.981-9.981-9.981-1.333 1.333 9.981 9.981-9.981 9.98 1.333 1.333 9.981-9.98 9.98 9.98 1.333-1.333-9.98-9.98 9.98-9.981z"
-                        ></path>
-                      </svg>
-                    </a>
-                  </div>
-                </div>
-                <div class="thread__details">{{  msg.body  }}
-                </div>
-              </div>
+
+                {%  endif  %}
+              
               {%  endfor  %}
 
               
@@ -136,11 +168,19 @@
 
         {%  if request.user.is_authenticated  %}
         <div class="room__message">
-            <form  method="POST" action="#">
+            <form  method="POST" action="#" enctype="multipart/form-data">
                 {%  csrf_token  %}
-                <input autofocus required type="text" name="msg_body" placeholder="Write your message here...">
+                <div class="inputWithIcon">
+                  <input autofocus type="text" class="message_box_input" name="msg_body" placeholder="Write your message here...">
+                  <label for="id_message_image">
+                    <svg id="msg_settings" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18 20H4V6h9V4H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-9h-2v9zm-7.79-3.17l-1.96-2.36L5.5 18h11l-3.54-4.71zM20 4V1h-2v3h-3c.01.01 0 2 0 2h3v2.99c.01.01 2 0 2 0V6h3V4h-3z"/></svg>
+                  </label>
+                  {{  form.message_image  }}
+                  
+                  </div>
             </form>
         </div>
+        
         {%  endif  %}
       </div>
       <!-- Room End -->
@@ -152,7 +192,7 @@
             {%  for participant in participants  %}
             <a href="{%  url 'accounts:profile' participant.id  %}" class="participant">
                 <div class="avatar avatar--medium">
-                    <img src="https://randomuser.me/api/portraits/men/37.jpg" />
+                    <img src="{{ participant.avatar.url }}" />
                 </div>
                 <p>
                     @{{  participant.username  }}

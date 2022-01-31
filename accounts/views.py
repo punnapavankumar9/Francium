@@ -1,5 +1,6 @@
 from re import template
 from django.contrib.auth import login, logout, authenticate
+from django.db import reset_queries
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
@@ -99,7 +100,6 @@ def register_view(request):
 
 @login_required
 def update_user_view(request):
-
     if(request.method == 'POST'):
         form = UserForm(request.POST,request.FILES,  instance=request.user)
         if form.is_valid():
