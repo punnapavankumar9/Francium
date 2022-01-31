@@ -32,6 +32,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework',
+    'rest_framework.authtoken',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,7 +47,7 @@ INSTALLED_APPS = [
 
 
     # external apps
-    'rest_framework',
+
 
 ]
 
@@ -153,3 +155,13 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'punnapavankumar9@gmail.com'
 EMAIL_HOST_PASSWORD = str(os.environ.get('MAIL_PASSWORD'))
+
+
+
+
+# Django rest framework classes
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
