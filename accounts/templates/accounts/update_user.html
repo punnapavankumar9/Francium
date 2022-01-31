@@ -1,4 +1,7 @@
 {%  extends 'base.html'  %}
+{%  load static  %}
+{% block extra_head %}
+{% endblock extra_head %}
 
 {% block body %}
 <main class="update-account layout">
@@ -38,5 +41,7 @@
     </div>
   </div>
 </main>
+<script src="{%  static 'js/resizer.js'  %}"></script>
+
 {% endblock body %}
 

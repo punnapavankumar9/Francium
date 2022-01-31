@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from base.models import Room, Topic , Message
 from accounts.models import User
-from base.forms import RoomForm
+from base.forms import MessageForm, RoomForm
 # Create your views here.
 
 # rooms = [
@@ -16,8 +16,7 @@ from base.forms import RoomForm
 # ]
 
 def home(request):
-    q= request.GET.get('q') if request.GET.get('q') != None else ""
-
+    q = request.GET.get('q') if request.GET.get('q') != None else ""
     rooms = Room.objects.filter(
                 Q(topic__name__icontains = q) | 
                 Q(name__icontains = q)|
@@ -41,24 +40,34 @@ def about(request):
 
 def room(request, pk):
     room = get_object_or_404(Room, id=pk)
-
+    form = MessageForm()
     if(request.method == 'POST'):
         body = request.POST.get('msg_body')
-        flag = False
-        if(body is None or body == ""):
-            flag = True
-        if(not flag):
-            msg = Message.objects.create(
-                user = request.user,
-                body = body,
-                room = room
-            )
+        form = MessageForm(request.POST, request.FILES)
+        if(form.is_valid()):
+            message = form.save(commit=False)
+            if(message.message_image != "messages/giphy.gif"):
+                message.isImage = True
+                message.body = message.message_image.name
+            else:
+                message.body = body
+            message.user = request.user
+            message.room = room
+            message.save()
             room.participants.add(request.user)
             return redirect('base:room', pk=room.id)
+        else:
+            print("adsjgadj ansdga")
+        # pass
+        # msg = Message.objects.create(
+        #     user = request.user,
+        #     body = body,
+        #     room = room
+        # )
 
-    room_messages = room.message_set.all().order_by('created')
+    room_messages = room.message_set.all().order_by('created')[1:10]
     participants = room.participants.all()
-    context = {'room':room, 'msgs':room_messages, 'participants':participants}
+    context = {'room':room, 'msgs':room_messages, 'participants':participants, 'form':form}
     return render(request, 'base/room.html', context)
 
 @login_required

@@ -1,10 +1,14 @@
+from re import template
 from django.contrib.auth import login, logout, authenticate
+from django.db import reset_queries
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse_lazy
 from .models import User
 from base.models import Topic
 from django.contrib import messages
 from .forms import CustomUserChangeForm, CustomUserCreationForm, UserForm
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetCompleteView, PasswordResetConfirmView
 # Create your views here.
 
 
@@ -35,6 +39,38 @@ def login_view(request):
     context = {'page':page}
     return render(request, 'accounts/login_register.html', context)
 
+def login_view2(request, from_password_reset):
+    from_login = request.GET.get('from_password_reset') if request.GET.get('from_password_reset') != None else 0
+    auth_tagline = ""
+    if(from_login):
+        auth_tagline = "Your password has been set.  You may go ahead and log in now."
+    page = 'login'
+    if request.user.is_authenticated:
+        return redirect('base:home')
+
+    if(request.method == 'POST'):
+        email = request.POST.get('email').lower()
+        password = request.POST.get('password')
+        
+        try:
+            temp_user = User.objects.get(email=email)
+        except:
+            messages.error(request, "User does not exists")
+            return render(request, 'accounts/login_register.html', {})    
+            
+        
+        user = authenticate(request, email = email, password = password)
+        if(user is not None):
+            login(request, user)
+            messages.success(request, "Login success")
+            return redirect('base:home')
+        else:
+            messages.error(request, "username and password does not match")
+
+    context = {'page':page, 'auth__tagline': auth_tagline}
+    return render(request, 'accounts/login_register.html', context)
+
+
 def logout_view(request):
     logout(request)
     messages.info(request, "Logout success")
@@ -64,7 +100,6 @@ def register_view(request):
 
 @login_required
 def update_user_view(request):
-
     if(request.method == 'POST'):
         form = UserForm(request.POST,request.FILES,  instance=request.user)
         if form.is_valid():
@@ -87,3 +122,25 @@ def profile_view(request, pk):
     topics = Topic.objects.all()[:5]
     context = {'user':user,'rooms':rooms, 'room_messages':room_messages, 'topics':topics, 'topics_count' : topics_count}
     return render(request, 'accounts/profile.html', context)
+
+# password reset class
+
+class CustomPasswordResetView(PasswordResetView):
+    email_template_name = 'accounts/password_reset_email.html'
+    template_name = 'accounts/password_reset_form.html'
+    success_url = reverse_lazy('accounts:password_reset_done')
+
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'accounts/password_reset_done.html'
+    pass
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'accounts/password_reset_confirm.html'
+    post_reset_login = True
+    success_url = reverse_lazy('accounts:login', kwargs={'from_password_reset':1})
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'accounts/password_reset_complete.html'
+
+

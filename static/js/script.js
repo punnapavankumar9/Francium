@@ -57,13 +57,29 @@ if (dropdownButton) {
 const photoInput = document.querySelector("#avatar");
 const photoPreview = document.querySelector("#preview-avatar");
 if (photoInput)
-  photoInput.onchange = () => {
+    photoInput.onchange = () => {
     const [file] = photoInput.files;
     if (file) {
-      photoPreview.src = URL.createObjectURL(file);
+        photoPreview.src = URL.createObjectURL(file);
     }
-  };
+};
+
+document.getElementById("id_message_image").addEventListener("change", () => {
+    document.querySelector(".message_box_input").focus();
+});
+
 
 // Scroll to Bottom
 const conversationThread = document.querySelector(".room__box");
 if (conversationThread) conversationThread.scrollTop = conversationThread.scrollHeight;
+
+const scrollElement = document.querySelector(".room__messages");
+scrollToBottom(scrollElement);
+
+function scrollToBottom(element) {
+  element.scroll({ top: element.scrollHeight, behavior: 'smooth' });
+}
+let st = document.getElementById("msg_settings");
+st.onclick = (e) =>{
+  console.log(e);
+}
