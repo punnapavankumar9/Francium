@@ -6,6 +6,5 @@ urlpatterns = [
     path('rooms/', views.RoomListView.as_view()),
     path('rooms/<str:pk>/', views.GetRoomView.as_view()),
     path('accounts/', include('api.accounts.urls')),
-    
-]
 
+]

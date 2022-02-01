@@ -1,9 +1,12 @@
+from functools import partial
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from .serializers import RegisterUserSerializer
+from .serializers import RegisterUserSerializer, UserDetailsUpdateSerializer
 from django.contrib.auth.hashers import make_password
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
 
 
 class CustomAuthToken(ObtainAuthToken):
@@ -23,7 +26,6 @@ class CustomAuthToken(ObtainAuthToken):
 def registerUserView(request):
     if request.method == "POST":
         serializer = RegisterUserSerializer(data=request.data)
-        
         data = {}
         if(serializer.is_valid()):
             passwd = serializer.validated_data.get('password')
@@ -31,9 +33,23 @@ def registerUserView(request):
             user = serializer.save()
             data['username'] = user.username
             data['email'] = user.email
-            token, created = Token.objects.get_or_create(user = user)
+            token = Token.objects.get(user = user)
             data['token'] = token.key
             return Response(data)
         else:
             data = serializer.errors
         return Response(data)
+
+@api_view(['PUT',])
+@permission_classes([IsAuthenticated, ])
+def updateUserDetailsView(request):
+    if request.method == 'PUT':
+        serializer = UserDetailsUpdateSerializer(request.user ,data = request.data, partial=True)
+        if(serializer.is_valid()):
+            user = serializer.save()
+            data = {}
+            data['message'] = "user details updated"
+            data['data'] = serializer.data
+            return Response(data, status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response({'errors':serializer.errors, 'detail':"fields not updated"}, status=status.HTTP_304_NOT_MODIFIED)

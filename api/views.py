@@ -26,7 +26,7 @@ def getRoutes(requests):
 
 
 class RoomListView(generics.ListAPIView):
-    queryset = Room.objects.all().order_by('updated')
+    queryset = Room.objects.all().order_by('-updated')
     pagination_class = StandardResultsSetPagination
     serializer_class = RoomSerializer
 
@@ -34,7 +34,6 @@ class RoomListView(generics.ListAPIView):
 
 
 class GetRoomView(generics.RetrieveAPIView):
-    
     lookup_field = "pk"
     queryset = Room.objects.all()
     serializer_class = RoomSerializer

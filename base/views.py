@@ -7,6 +7,7 @@ from django.contrib import messages
 from base.models import Room, Topic , Message
 from accounts.models import User
 from base.forms import MessageForm, RoomForm
+from api.custom_validators import check_empty
 # Create your views here.
 
 # rooms = [
@@ -37,14 +38,13 @@ def home(request):
 
 def about(request):
     return render(request, 'base/about.html')
-
 def room(request, pk):
     room = get_object_or_404(Room, id=pk)
     form = MessageForm()
     if(request.method == 'POST'):
         body = request.POST.get('msg_body')
         form = MessageForm(request.POST, request.FILES)
-        if(form.is_valid()):
+        if(form.is_valid() and (not check_empty(body) or request.FILES.get('message_image') is not None)):
             message = form.save(commit=False)
             if(message.message_image != "messages/giphy.gif"):
                 message.isImage = True
@@ -57,7 +57,7 @@ def room(request, pk):
             room.participants.add(request.user)
             return redirect('base:room', pk=room.id)
         else:
-            print("adsjgadj ansdga")
+            messages.error(request, "unable to send message")
         # pass
         # msg = Message.objects.create(
         #     user = request.user,
@@ -65,7 +65,7 @@ def room(request, pk):
         #     room = room
         # )
 
-    room_messages = room.message_set.all().order_by('created')[1:10]
+    room_messages = room.message_set.all().order_by('-created')[:10][::-1]
     participants = room.participants.all()
     context = {'room':room, 'msgs':room_messages, 'participants':participants, 'form':form}
     return render(request, 'base/room.html', context)

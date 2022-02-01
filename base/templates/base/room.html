@@ -170,14 +170,23 @@
         <div class="room__message">
             <form  method="POST" action="#" enctype="multipart/form-data">
                 {%  csrf_token  %}
-                <div class="inputWithIcon">
                   <input autofocus type="text" class="message_box_input" name="msg_body" placeholder="Write your message here...">
-                  <label for="id_message_image">
-                    <svg id="msg_settings" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18 20H4V6h9V4H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-9h-2v9zm-7.79-3.17l-1.96-2.36L5.5 18h11l-3.54-4.71zM20 4V1h-2v3h-3c.01.01 0 2 0 2h3v2.99c.01.01 2 0 2 0V6h3V4h-3z"/></svg>
+                  <label class="id_message_image" for="id_message_image">
+                    <svg class="msg_image_svg" id="msg_settings" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M18 20H4V6h9V4H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-9h-2v9zm-7.79-3.17l-1.96-2.36L5.5 18h11l-3.54-4.71zM20 4V1h-2v3h-3c.01.01 0 2 0 2h3v2.99c.01.01 2 0 2 0V6h3V4h-3z"/></svg>
                   </label>
                   {{  form.message_image  }}
-                  
-                  </div>
+                  <div class="msg_properties">
+                    <label for="send_msg_btn">
+                      <img class="msg_send_icon" src="{%  static 'images/send.png'  %}" />
+                    </label>
+                    <button type="submit" id="send_msg_btn" hidden></button>
+                    <span>  
+                      <svg class="msg_clear_svg" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="42" height="4" transform="matrix(0.690405 0.723423 -0.690405 0.723423 3.58317 0.134247)" fill="#C4C4C4"/>
+                        <rect width="42" height="4" transform="matrix(0.690405 -0.723423 0.690405 0.723423 0.634251 29.9101)" fill="#C4C4C4"/>
+                      </svg>
+                    </span>
+                    </div>
             </form>
         </div>
         

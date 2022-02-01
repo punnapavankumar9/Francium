@@ -1,9 +1,11 @@
-from dataclasses import field
-from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 from base.models import Room
 
 
-class RoomSerializer(ModelSerializer):
+class RoomSerializer(serializers.ModelSerializer):
+    host = serializers.PrimaryKeyRelatedField(read_only = True)
+    created = serializers.DateTimeField(read_only=True)
+
     class Meta:
         model = Room
         fields = '__all__'
