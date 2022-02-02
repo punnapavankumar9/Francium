@@ -1,8 +1,9 @@
 from distutils.command.upload import upload
 from email.policy import default
-from statistics import mode
+from PIL import Image
 from django.db import models
 from django.contrib.auth import get_user_model
+from base.resize_image import ResizeImageMixin
 
 # Create your models here.
 
@@ -30,8 +31,7 @@ class Room(models.Model):
     def __str__(self) -> str:
         return self.name
 
-
-class Message(models.Model):
+class Message(models.Model, ResizeImageMixin):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     isImage = models.BooleanField(default=False)
@@ -45,6 +45,11 @@ class Message(models.Model):
             return self.body[0:50]
         return self.body
     
+    # def save(self, *args, **kwargs):
+    #     if self.message_image:
+    #         self.resize(self.message_image, (300, 300))
+    #     super().save(self, *args, **kwargs)
+
     class Meta:
         ordering = ['-updated', '-created']
 

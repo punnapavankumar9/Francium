@@ -10,6 +10,7 @@
     </div> -->
     
     {%  for msg in room_messages  %}
+    {%  if msg.isImage  %}
         <div class="activities__box">
             <div class="activities__boxHeader roomListRoom__header">
                 <a href="{%  url 'accounts:profile' msg.user.id %}" class="roomListRoom__author">
@@ -33,11 +34,42 @@
             </div>
             <div class="activities__boxContent">
                 <p>replied to post “<a href="{%  url 'base:room' msg.room.id %}">{{  msg.room  }}</a>”</p>
-                <div class="activities__boxRoomContent">
-                    {{  msg.body  }}
+                <div class="activities__boxRoomContent activities__boxRoomContent__image">
+                    <img src="{{  msg.message_image.url  }}" alt="{{  msg.body  }}">
                 </div>
             </div>
         </div>
+    {%  else  %}
+
+    <div class="activities__box">
+        <div class="activities__boxHeader roomListRoom__header">
+            <a href="{%  url 'accounts:profile' msg.user.id %}" class="roomListRoom__author">
+                <div class="avatar avatar--small">
+                    <img src="{{  msg.user.avatar.url  }}" />
+                </div>
+                <p>@{{  msg.user.username  }} 
+                    <span>{{  msg.updated|timesince  }} ago</span>
+                </p>
+            </a>
+            <div class="roomListRoom__actions">
+                <a href="{%  url 'base:delete-message' msg.id %}">
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                        <title>remove</title>
+                        <path
+                        d="M27.314 6.019l-1.333-1.333-9.98 9.981-9.981-9.981-1.333 1.333 9.981 9.981-9.981 9.98 1.333 1.333 9.981-9.98 9.98 9.98 1.333-1.333-9.98-9.98 9.98-9.981z"
+                        ></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        <div class="activities__boxContent">
+            <p>replied to post “<a href="{%  url 'base:room' msg.room.id %}">{{  msg.room  }}</a>”</p>
+            <div class="activities__boxRoomContent">
+                {{  msg.body  }}
+            </div>
+        </div>
+    </div>
+    {%  endif  %}
     {%  endfor  %}
     <a class="btn btn--link more-activities" href="{%  url 'base:activity'  %}">
         More

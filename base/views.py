@@ -28,7 +28,7 @@ def home(request):
     page_number = request.GET.get('page')
     # if(page_number is not None)
     rooms = paginator.get_page(page_number)
-    room_messages = Message.objects.filter(Q(room__topic__name__icontains = q))[:5]
+    room_messages = Message.objects.filter(Q(room__topic__name__icontains = q))[:10]
     topics_count = Topic.objects.count()
     topics = Topic.objects.all()[:5]
     context = {'rooms':rooms, 'topics':topics, 'room_count':room_count, 'room_messages':room_messages, 'topics_count':topics_count}
@@ -159,6 +159,9 @@ def topics_view(request):
 
 def activity_view(request):
     room_messages = Message.objects.all()
+    paginator = Paginator(room_messages, 5)
+    page_number = request.GET.get('page')
+    room_messages = paginator.get_page(page_number)
     context = {'room_messages':room_messages}
     
     return render(request, 'base/activity.html', context)
