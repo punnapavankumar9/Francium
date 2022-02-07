@@ -13,6 +13,6 @@ class User(AbstractUser, ResizeImageMixin):
     REQUIRED_FIELDS = ['username']
 
     def save(self, *args, **kwargs):
-        if self.avatar != "avatar.svg":
+        if self.avatar:
             self.resize(self.avatar, (300, 300))
         super().save(*args, **kwargs)

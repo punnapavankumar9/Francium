@@ -8,7 +8,10 @@ from django.db import models
 
 class ResizeImageMixin:
     def resize(self, imageField: models.ImageField, size:tuple):
-        im = Image.open(imageField)  # Catch original
+        try:
+            im = Image.open(imageField)  # Catch original
+        except:
+            return
         source_image = im.convert('RGB')
         source_image.thumbnail(size)  # Resize to size
         output = BytesIO()

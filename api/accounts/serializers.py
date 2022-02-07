@@ -23,10 +23,10 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class UserDetailsUpdateSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['name', 'username', 'email','bio','avatar']
+        fields = ['name', 'username', 'email','bio','avatar', 'first_name', 'last_name', 'date_joined',]
 
     def update(self, instance, validated_data):
         error = {}
@@ -38,3 +38,5 @@ class UserDetailsUpdateSerializer(serializers.ModelSerializer):
                 error['error'] = "please provide valid " + i
                 raise serializers.ValidationError(detail=error)
         return super().update(instance, validated_data)
+
+    
