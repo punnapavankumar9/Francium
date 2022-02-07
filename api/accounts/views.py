@@ -1,14 +1,16 @@
-from functools import partial
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from .serializers import RegisterUserSerializer, UserDetailsUpdateSerializer
+from .serializers import RegisterUserSerializer, UserSerializer
 from django.contrib.auth.hashers import make_password
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from django.contrib.auth import get_user_model
+from rest_framework import generics
 
 
+User = get_user_model()
 class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request':request})
@@ -42,9 +44,9 @@ def registerUserView(request):
 
 @api_view(['PUT',])
 @permission_classes([IsAuthenticated, ])
-def updateUserDetailsView(request):
+def userDetailsView(request, **kwargs):
     if request.method == 'PUT':
-        serializer = UserDetailsUpdateSerializer(request.user ,data = request.data, partial=True)
+        serializer = UserSerializer(request.user ,data = request.data, partial=True)
         if(serializer.is_valid()):
             user = serializer.save()
             data = {}
@@ -53,3 +55,19 @@ def updateUserDetailsView(request):
             return Response(data, status=status.HTTP_202_ACCEPTED)
         else:
             return Response({'errors':serializer.errors, 'detail':"fields not updated"}, status=status.HTTP_304_NOT_MODIFIED)
+    
+    # if request.method == 'GET':
+    #     pk = int(kwargs['pk'])
+    #     try:
+    #         user = User.objects.get(pk = int(pk))
+    #     except:
+    #         return Response(data={'error':f'There is no room with id:{pk}'},status=status.HTTP_404_NOT_FOUND)
+
+    #     serializer = UserSerializer(data = user, many=False)
+
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
+
+class UserDetailsView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    lookup_field = "pk"
+    serializer_class = UserSerializer

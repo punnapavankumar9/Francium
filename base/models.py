@@ -10,11 +10,10 @@ from base.resize_image import ResizeImageMixin
 User = get_user_model()
 
 class Topic(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, null=False, blank=False, unique=True)
 
     def __str__(self) -> str:
         return self.name
-        
 
 class Room(models.Model):
     host = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -38,7 +37,7 @@ class Message(models.Model, ResizeImageMixin):
     body = models.TextField(null=True, blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
-    message_image = models.ImageField(default="messages/giphy.gif", upload_to="messages/", null=True, blank=True)
+    message_image = models.ImageField(default="messages/default.jpg", upload_to="messages/", null=True, blank=True)
 
     def __str__(self) -> str:
         if(len(self.body) > 50):
@@ -52,4 +51,5 @@ class Message(models.Model, ResizeImageMixin):
 
     class Meta:
         ordering = ['-updated', '-created']
+
 

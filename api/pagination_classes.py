@@ -7,3 +7,7 @@ class LargeResultSetPaginator(PageNumberPagination):
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 10
+
+
+class TestingResultsSetPagination(PageNumberPagination):
+    page_size = 1

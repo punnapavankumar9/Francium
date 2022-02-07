@@ -22,13 +22,13 @@ def home(request):
                 Q(topic__name__icontains = q) | 
                 Q(name__icontains = q)|
                 Q(description__icontains = q)
-            )
+            ).order_by("-updated")
     room_count = rooms.count()
     paginator = Paginator(rooms, 2)
     page_number = request.GET.get('page')
     # if(page_number is not None)
     rooms = paginator.get_page(page_number)
-    room_messages = Message.objects.filter(Q(room__topic__name__icontains = q))[:10]
+    room_messages = Message.objects.filter(Q(room__topic__name__icontains = q))[:5]
     topics_count = Topic.objects.count()
     topics = Topic.objects.all()[:5]
     context = {'rooms':rooms, 'topics':topics, 'room_count':room_count, 'room_messages':room_messages, 'topics_count':topics_count}
@@ -46,7 +46,7 @@ def room(request, pk):
         form = MessageForm(request.POST, request.FILES)
         if(form.is_valid() and (not check_empty(body) or request.FILES.get('message_image') is not None)):
             message = form.save(commit=False)
-            if(message.message_image != "messages/giphy.gif"):
+            if(message.message_image != "messages/default.jpg"):
                 message.isImage = True
                 message.body = message.message_image.name
             else:
