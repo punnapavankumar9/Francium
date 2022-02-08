@@ -30,11 +30,24 @@
     {%  if messages  %}
         <ul class="meassage">
             {%  for msg in  messages  %}
-                <div id="snackbar" kk="msg_{{  msg.tags  }}" >{{msg}}</div>
+            <div id="snackbar" kk="msg_{{  msg.tags  }}" >{{msg}}
+                <svg version="1.1" fill="currentColor" class="messages_from_django_clear_btn" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                    <title>remove</title>
+                    <path
+                    d="M27.314 6.019l-1.333-1.333-9.98 9.981-9.981-9.981-1.333 1.333 9.981 9.981-9.981 9.98 1.333 1.333 9.981-9.98 9.98 9.98 1.333-1.333-9.98-9.98 9.98-9.981z"
+                    ></path>
+                </svg>
+            </div>
                 <script>
                     var x = document.getElementById("snackbar");
                     x.className = "show";
-                    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 5000);
+                    setTimeout(function(){
+                        x.className = x.className.replace("show", "");
+                    }, 10000);
+                    let messages_from_django_clear_btn = document.querySelector(".messages_from_django_clear_btn");
+                    messages_from_django_clear_btn.addEventListener("click", () => {
+                        x.className = "";
+                    });
                 </script>
             {%  endfor  %}
         </ul>

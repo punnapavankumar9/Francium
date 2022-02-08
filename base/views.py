@@ -32,7 +32,7 @@ def home(request):
     topics_count = Topic.objects.count()
     topics = Topic.objects.all()[:5]
     context = {'rooms':rooms, 'topics':topics, 'room_count':room_count, 'room_messages':room_messages, 'topics_count':topics_count}
-    # messages.info(request, "dsd adsa adsd asd ads")
+    messages.info(request, "dsd adsa adsd asd ads")
     return render(request, 'base/home.html', context)
 
 
@@ -57,7 +57,7 @@ def room(request, pk):
             room.participants.add(request.user)
             return redirect('base:room', pk=room.id)
         else:
-            messages.error(request, "unable to send message")
+            messages.error(request, form.errors)
         # pass
         # msg = Message.objects.create(
         #     user = request.user,
