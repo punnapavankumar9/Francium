@@ -1202,7 +1202,7 @@ a {
 }
 #snackbar {
   visibility: hidden;
-  min-width: 250px;
+  min-width: 300px;
   margin-left: -125px;
   background-color: #333;
   color: #fff;
@@ -1214,6 +1214,12 @@ a {
   left: 50%;
   bottom: 30px;
   font-size: 17px;
+  display: flex;
+  justify-content: space-between;
+}
+.messages_from_django_clear_btn{
+  cursor: pointer;
+  color: var(--color-light-gray);
 }
 
 #snackbar.show[kk=msg_success]{
@@ -1225,11 +1231,10 @@ a {
 #snackbar.show[kk=msg_info]{
   background-color: grey;
 }
-
 #snackbar.show {
   visibility: visible;
-  -webkit-animation: fadein 0.5s, fadeout 1s 4s;
-  animation: fadein 0.5s, fadeout 1s 4s;
+  -webkit-animation: fadein 1s, fadeout 1s 10s;
+  animation: fadein 1s, fadeout 1s 9s;
   border-radius: 7px;
 }
 

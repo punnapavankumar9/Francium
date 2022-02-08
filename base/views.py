@@ -57,7 +57,7 @@ def room(request, pk):
             room.participants.add(request.user)
             return redirect('base:room', pk=room.id)
         else:
-            messages.error(request, "unable to send message")
+            messages.error(request, form.errors)
         # pass
         # msg = Message.objects.create(
         #     user = request.user,

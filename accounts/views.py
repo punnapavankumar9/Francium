@@ -91,7 +91,7 @@ def register_view(request):
             login(request, user)
             return redirect('base:home')
         else:
-            messages.error(request, "An error occured during registration")
+            messages.error(request, form.errors)
 
 
     context = {'page':page, 'form':form}
@@ -106,7 +106,7 @@ def update_user_view(request):
             form.save()
             return redirect('accounts:profile', request.user.id)
         else:
-            messages.warning(request, "something went wrong")
+            messages.warning(request, form.errors)
 
     user = request.user
     form = UserForm(instance=user)

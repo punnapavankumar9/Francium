@@ -1,14 +1,16 @@
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
-from .serializers import RegisterUserSerializer, UserSerializer
+from .serializers import RegisterUserSerializer, SetNewPasswordSerializer, UserSerializer, PasswordUpdateSerializer, PasswordResetSerializer
 from django.contrib.auth.hashers import make_password
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from rest_framework import generics
-
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import smart_str
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 
 User = get_user_model()
 class CustomAuthToken(ObtainAuthToken):
@@ -71,3 +73,49 @@ class UserDetailsView(generics.RetrieveAPIView):
     queryset = User.objects.all()
     lookup_field = "pk"
     serializer_class = UserSerializer
+
+class UserPasswordChangeView(generics.UpdateAPIView):
+    serializer_class = PasswordUpdateSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if(serializer.is_valid()):
+            user = serializer.save()
+            if(hasattr(user, 'auth_token')):
+                user.auth_token.delete()
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({'token':token.key}, status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+class RequestPasswordResetEmail(generics.GenericAPIView):
+    serializer_class = PasswordResetSerializer
+    def post(self, request):
+        serializer = self.get_serializer(data = request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response({'detail':"A mail with password reset instructions has been sent to your email address."}, status=status.HTTP_200_OK)
+
+class PasswordTokenCheckView(generics.GenericAPIView):
+    def get(self, request, uidb64, token, **kwargs):
+        try:
+            id = smart_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(id = id)
+        except:
+            return Response({'detail':"please enter a valid url or try to reset the password after sometime"})
+        if not PasswordResetTokenGenerator().check_token(user = user, token=token):
+            return Response({'detail':"Password reset process failed please generate a new token"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({'detail':"Password reset token verification success", 'token':token, 'uidb64':uidb64}, status=status.HTTP_200_OK)
+
+class SetNewPassword(generics.GenericAPIView):
+    serializer_class = SetNewPasswordSerializer
+
+    def patch(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if(serializer.is_valid()):
+            print("pavan1")
+            serializer.save()
+            return Response({'detail':"password reset successfully completed"}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
