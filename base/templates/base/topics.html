@@ -1,4 +1,5 @@
 {%  extends 'base.html'  %}
+{%  load room_count  %}
 {% block body %}
   <main class="create-room layout">
     <div class="container">
@@ -36,7 +37,7 @@
             </li>
             {%  for topic in topics  %}
             <li>
-              <a href="{%  url 'base:home'  %}?q={{  topic.name  }}">{{  topic.name  }} <span>{{  topic.room_set.all.count  }}</span></a>
+              <a href="{%  url 'base:home'  %}?q={{  topic.name  }}">{{  topic.name  }} <span>{{  topic|room_count  }}</span></a>
             </li>
             {%  endfor  %}
           </ul>

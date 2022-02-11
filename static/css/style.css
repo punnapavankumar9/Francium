@@ -70,6 +70,10 @@ a {
   text-decoration: none;
 }
 
+ul >li{
+  text-decoration: none;
+  list-style: none;
+}
 /*========== components ==========*/
 .container {
   max-width: 120rem;
@@ -1023,7 +1027,7 @@ a {
   justify-content: space-between;
 }
 
-.room__info h3 {
+.room__info > div > h3 {
   font-size: 2.4rem;
   font-weight: 500;
   color: var(--color-main);
@@ -1358,4 +1362,53 @@ a {
 
 .activity_pagination_links{
   text-align: center !important;
+}
+
+
+.is_private_container{
+  display: flex;
+  width: 150px;
+  
+}
+.is_private_container > label{
+  padding-right: 30px;
+}
+#id_is_private{
+  width: 20px;
+  height: 20px;
+  padding-left: 50px;
+}
+.room_name{
+  display: flex;
+}
+.room_type{
+  margin-left: -5px;
+  color: #000;
+  padding: 5px  ;
+}
+.requests_icon{
+  width: 30px;
+  height: 30px;
+}
+.request{
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0px;
+}
+.validate_requests{
+  text-align: center;
+  margin-top: 20px !important;
+}
+/* .request_form{
+  position: relative;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%),translateY(-50%) !important ;
+} */
+
+.request_form{
+  text-align: center;
+  position: relative;
+  top: 50%;
+  transform: translateY(50%);
 }

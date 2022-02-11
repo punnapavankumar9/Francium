@@ -9,6 +9,7 @@ from base.models import Topic
 from django.contrib import messages
 from .forms import CustomUserChangeForm, CustomUserCreationForm, UserForm
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetCompleteView, PasswordResetConfirmView
+from django.core.paginator import Paginator
 # Create your views here.
 
 
@@ -116,9 +117,12 @@ def update_user_view(request):
 
 def profile_view(request, pk):
     user = get_object_or_404(User, id=pk)
-    rooms = user.room_set.all()
+    if(request.user.id == int(pk)):
+        rooms = user.room_set.all()
+    else:
+        rooms = user.room_set.filter(is_private=False)
     topics_count = Topic.objects.count()
-    room_messages = user.message_set.all()
+    room_messages = user.message_set.all()[:5]
     topics = Topic.objects.all()[:5]
     context = {'user':user,'rooms':rooms, 'room_messages':room_messages, 'topics':topics, 'topics_count' : topics_count}
     return render(request, 'accounts/profile.html', context)
