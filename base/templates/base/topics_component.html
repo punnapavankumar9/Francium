@@ -1,3 +1,4 @@
+{%  load room_count  %}
 <div class="topics">
     <div class="topics__header">
         <h2>Browse Topics</h2>
@@ -9,7 +10,7 @@
         
         {%  for topic in topics  %}
         <li>
-            <a href="{%  url 'base:home'  %}?q={{  topic.name  }}">{{  topic.name  }} <span>{{  topic.room_set.all.count  }}</span> </a>
+            <a href="{%  url 'base:home'  %}?q={{  topic.name  }}">{{  topic.name  }} <span>{{  topic|room_count  }}</span> </a>
         </li>
         {%  endfor  %}
     </ul>

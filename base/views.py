@@ -4,8 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import  get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from base.models import Room, Topic , Message
-from accounts.models import User
+from base.models import Request, Room, Topic , Message
 from base.forms import MessageForm, RoomForm
 from api.custom_validators import check_empty
 # Create your views here.
@@ -28,7 +27,7 @@ def home(request):
     page_number = request.GET.get('page')
     # if(page_number is not None)
     rooms = paginator.get_page(page_number)
-    room_messages = Message.objects.filter(Q(room__topic__name__icontains = q))[:5]
+    room_messages = Message.objects.filter(Q(room__topic__name__icontains = q) & Q(room__is_private=False))[:5]
     topics_count = Topic.objects.count()
     topics = Topic.objects.all()[:5]
     context = {'rooms':rooms, 'topics':topics, 'room_count':room_count, 'room_messages':room_messages, 'topics_count':topics_count}
@@ -38,49 +37,68 @@ def home(request):
 
 def about(request):
     return render(request, 'base/about.html')
+
 def room(request, pk):
     room = get_object_or_404(Room, id=pk)
-    form = MessageForm()
-    if(request.method == 'POST'):
-        body = request.POST.get('msg_body')
-        form = MessageForm(request.POST, request.FILES)
-        if(form.is_valid() and (not check_empty(body) or request.FILES.get('message_image') is not None)):
-            message = form.save(commit=False)
-            if(message.message_image != "messages/default.jpg"):
-                message.isImage = True
-                message.body = message.message_image.name
+    if(room.is_private == False or room.participants.filter(id=request.user.id).exists()):
+        form = MessageForm()
+        if(request.method == 'POST'):
+            body = request.POST.get('msg_body')
+            form = MessageForm(request.POST, request.FILES)
+            if(form.is_valid() and (not check_empty(body) or request.FILES.get('message_image') is not None)):
+                message = form.save(commit=False)
+                if(message.message_image != "messages/default.jpg"):
+                    message.isImage = True
+                    message.body = message.message_image.name
+                else:
+                    message.body = body
+                message.user = request.user
+                message.room = room
+                message.save()
+                room.participants.add(request.user)
+                return redirect('base:room', pk=room.id)
             else:
-                message.body = body
-            message.user = request.user
-            message.room = room
-            message.save()
-            room.participants.add(request.user)
-            return redirect('base:room', pk=room.id)
-        else:
-            messages.error(request, form.errors)
-        # pass
-        # msg = Message.objects.create(
-        #     user = request.user,
-        #     body = body,
-        #     room = room
-        # )
+                messages.error(request, form.errors)
+            # pass
+            # msg = Message.objects.create(
+            #     user = request.user,
+            #     body = body,
+            #     room = room
+            # )
 
-    room_messages = room.message_set.all().order_by('-created')[:10][::-1]
-    participants = room.participants.all()
-    context = {'room':room, 'msgs':room_messages, 'participants':participants, 'form':form}
-    return render(request, 'base/room.html', context)
+        room_messages = room.message_set.all().order_by('-created')[:10][::-1]
+        participants = room.participants.all()
+        context = {'has_access':True, 'room':room, 'msgs':room_messages, 'participants':participants, 'form':form}
+        return render(request, 'base/room.html', context)
+    else:
+        if(request.method == "POST"):
+            req , created = Request.objects.get_or_create(
+                user = request.user,
+                room = room,
+            )
+        requested = Request.objects.filter(user=request.user, room=room)
+        if(requested.exists()):
+            requested = True
+        else:
+            requested = False
+        context = {"has_access":False, 'room':room, 'requested':requested}
+        return render(request, 'base/room.html', context)
 
 @login_required
 def create_room(request):
     if request.method == 'POST':
         topic_name = request.POST.get('topic')
         topic, created = Topic.objects.get_or_create(name=topic_name)
-        Room.objects.create(
+        room = Room.objects.create(
             host = request.user,
             topic = topic,
             name=request.POST.get('name'),
             description = request.POST.get('description')
         )
+        if(request.POST.get('is_private') == 'on'):
+            room.is_private = True
+        room.save()
+        room.participants.add(request.user)
         return redirect('base:home')
 
 
@@ -97,18 +115,18 @@ def create_room(request):
 
 def update_room(request, pk):
     room = get_object_or_404(Room, id = pk)
-    form = RoomForm(instance=room)
-
     if(request.user != room.host):
         return HttpResponse("Your are not allowed here!")
 
-
+    form = RoomForm(instance=room)
     if(request.method == 'POST'):
         topic_name = request.POST.get('topic')
         topic, created = Topic.objects.get_or_create(name=topic_name)
         room.name = request.POST.get('name')
         room.description = request.POST.get('description')
         room.topic = topic
+        if(request.POST.get('is_private') == 'on'):
+            room.is_private = True
         room.save()
         return redirect('base:home')
 
@@ -165,3 +183,23 @@ def activity_view(request):
     context = {'room_messages':room_messages}
     
     return render(request, 'base/activity.html', context)
+
+def room_requests(request, room_id):
+    room = get_object_or_404(Room, id=room_id)
+    if(room.host != request.user):
+        return HttpResponse("You are not Allowed Here")
+    
+
+    join_requests = room.request_set.all()
+    if request.method == 'POST':
+        for req in join_requests:
+            if(request.POST.get(req.user.username) == 'Accept'):
+                room.participants.add(req.user)
+                req.delete()
+            elif(request.POST.get(req.user.username) == 'Decline'):
+                req.delete()
+        return redirect('base:room' , pk=room.id)
+
+    context = {'join_requests':join_requests}
+    
+    return render(request, 'base/room_requests.html', context)
