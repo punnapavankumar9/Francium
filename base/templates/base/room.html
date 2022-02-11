@@ -129,9 +129,9 @@
                               </a>
                               <span class="thread__date">{{  msg.created|timesince }} ago</span>
                             </div>
+                            {%  if msg.user == request.user  %}
                             <div class="thread__delete">
                               <a href="{%  url 'base:delete-message' msg.id %}">
-                                
                                 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
                                   <title>remove</title>
                                   <path
@@ -140,6 +140,7 @@
                                 </svg>
                               </a>
                             </div>
+                            {%  endif  %}
                           </div>
                           <div class="thread__details">
                             <img style="width: 200px;" src="{{  msg.message_image.url  }}" alt="asdad">
@@ -157,6 +158,7 @@
                               </a>
                               <span class="thread__date">{{  msg.created|timesince }} ago</span>
                             </div>
+                            {%  if msg.user == request.user  %}
                             <div class="thread__delete">
                               <a href="{%  url 'base:delete-message' msg.id %}">
                                 
@@ -168,6 +170,7 @@
                                 </svg>
                               </a>
                             </div>
+                            {%  endif  %}
                           </div>
                           <div class="thread__details">{{  msg.body  }}
                           </div>

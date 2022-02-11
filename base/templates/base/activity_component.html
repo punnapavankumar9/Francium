@@ -36,8 +36,11 @@
             </div>
             <div class="activities__boxContent">
                 <p>replied to post “<a href="{%  url 'base:room' msg.room.id %}">{{  msg.room  }}</a>”</p>
-                <div class="activities__boxRoomContent activities__boxRoomContent__image">
+                <!-- <div class="activities__boxRoomContent activities__boxRoomContent__image">
                     <img src="{{  msg.message_image.url  }}" alt="{{  msg.body  }}">
+                </div> -->
+                <div class="activities__boxRoomContent">
+                    <a href="{{  msg.message_image.url  }}">{{  msg.body  }}</a>
                 </div>
             </div>
         </div>

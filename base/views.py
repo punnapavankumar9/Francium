@@ -71,6 +71,10 @@ def room(request, pk):
         context = {'has_access':True, 'room':room, 'msgs':room_messages, 'participants':participants, 'form':form}
         return render(request, 'base/room.html', context)
     else:
+        if not request.user.is_authenticated:
+            messages.info(request, "This room is private you must login to view this")
+            return redirect("accounts:login")
+
         if(request.method == "POST"):
             req , created = Request.objects.get_or_create(
                 user = request.user,
@@ -176,7 +180,7 @@ def topics_view(request):
 
 
 def activity_view(request):
-    room_messages = Message.objects.all()
+    room_messages = Message.objects.filter(Q(room__is_private=False))
     paginator = Paginator(room_messages, 5)
     page_number = request.GET.get('page')
     room_messages = paginator.get_page(page_number)
