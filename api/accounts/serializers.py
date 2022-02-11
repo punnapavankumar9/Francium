@@ -22,9 +22,10 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['name','username', 'email', 'password',]
         extra_kwargs = {
-            'name':{'required':True},
-            'password':{'write_only':True},
-            'email':{'required':True},
+            'name':{'required':True, 'min_length':2},
+            'password':{'write_only':True, 'min_length':2},
+            'email':{'required':True, 'min_length':2},
+            'username':{'required':True, 'min_length':2},
         }
     def create(self, validated_data):
         error = {}
@@ -53,9 +54,9 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class PasswordUpdateSerializer(serializers.Serializer):
-    old_pass = serializers.CharField(write_only=True, required=True)
-    new_pass = serializers.CharField(write_only=True, required=True)
-    new_pass1 = serializers.CharField(write_only=True, required=True)
+    old_pass = serializers.CharField(write_only=True, required=True, min_length=2)
+    new_pass = serializers.CharField(write_only=True, required=True, min_length=2)
+    new_pass1 = serializers.CharField(write_only=True, required=True, min_length=2)
     class Meta:
         model = User
         fields = ['old_pass', 'new_pass', 'new_pass1']

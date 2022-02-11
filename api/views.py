@@ -1,4 +1,5 @@
 from typing import OrderedDict
+from urllib import request
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -45,7 +46,11 @@ class GetMessagesByRoom(generics.ListAPIView):
         pk = self.kwargs.get("pk")
         room = get_object_or_404(Room, id=pk)
         if(room):
-            return room.message_set.all()
+            has_permission = room.is_private == False or room.participants.filter(id=self.request.user.id)
+            if(has_permission):
+                return room.message_set.all()
+            else:
+                return []
         else:
             return []
 
@@ -55,6 +60,9 @@ def createMessage(request, pk):
     if(request.method == "POST"):
         data = {}
         room = get_object_or_404(Room, id=pk)
+        if(room.is_private):
+            if(not room.participants.filter(id=request.user.id).exists()):
+                return Response({'error':'you don\'t have access to this room please request for access'})
         serializer = MessageSerializer(data=request.data)
         if(serializer.is_valid()):
             if("message_image" in  serializer.validated_data):

@@ -8,7 +8,5 @@ urlpatterns = [
     path('room_msgs/<str:pk>/', views.GetMessagesByRoom.as_view()),
     path('send_message/<str:pk>/', views.createMessage),
     path('topics/', views.TopicView.as_view()),
-
-
     path('accounts/', include('api.accounts.urls')),
 ]

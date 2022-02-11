@@ -1,11 +1,10 @@
-from re import template
 from django.contrib.auth import login, logout, authenticate
-from django.db import reset_queries
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from .models import User
 from base.models import Topic
+from django.db.models import Q
 from django.contrib import messages
 from .forms import CustomUserChangeForm, CustomUserCreationForm, UserForm
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetCompleteView, PasswordResetConfirmView
@@ -122,7 +121,7 @@ def profile_view(request, pk):
     else:
         rooms = user.room_set.filter(is_private=False)
     topics_count = Topic.objects.count()
-    room_messages = user.message_set.all()[:5]
+    room_messages = user.message_set.filter(Q(room__is_private=False))[:5]
     topics = Topic.objects.all()[:5]
     context = {'user':user,'rooms':rooms, 'room_messages':room_messages, 'topics':topics, 'topics_count' : topics_count}
     return render(request, 'accounts/profile.html', context)
