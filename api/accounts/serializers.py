@@ -41,6 +41,9 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['name', 'username', 'email','bio','avatar', 'first_name', 'last_name', 'date_joined',]
 
+        extra_kwargs = {
+            'date_joined':{'read_only':True}
+        }
     def update(self, instance, validated_data):
         error = {}
         if(len(validated_data) == 0):
@@ -123,7 +126,6 @@ class SetNewPasswordSerializer(serializers.Serializer):
         fields = ['password', 'token', 'uidb64']
 
     def validate(self, attrs):
-        print("asdakhdkajgdjak,dg")
         id = force_str(urlsafe_base64_decode(attrs.get("uidb64")))
         token = attrs['token']
         password = attrs['password']
@@ -143,7 +145,6 @@ class SetNewPasswordSerializer(serializers.Serializer):
     def save(self, **kwargs):
         id = force_str(urlsafe_base64_decode(self.validated_data.get("uidb64")))
         user = User.objects.get(id=id)
-        print("pavan")
         user.set_password(self.validated_data['password'])
         user.save()
         return user

@@ -4,13 +4,17 @@ from rest_framework.response import Response
 from .serializers import RegisterUserSerializer, SetNewPasswordSerializer, UserSerializer, PasswordUpdateSerializer, PasswordResetSerializer
 from django.contrib.auth.hashers import make_password
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.models import AnonymousUser
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from rest_framework import generics
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import smart_str
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from drf_yasg.utils import swagger_auto_schema
+
 
 User = get_user_model()
 class CustomAuthToken(ObtainAuthToken):
@@ -26,6 +30,7 @@ class CustomAuthToken(ObtainAuthToken):
         data['email'] = user.email
         return Response(data)
 
+@swagger_auto_schema(method='post', request_body=RegisterUserSerializer)
 @api_view(['POST', ])
 def registerUserView(request):
     if request.method == "POST":
@@ -49,12 +54,12 @@ def registerUserView(request):
 # class UserDetailsUpdate(generics.UpdateAPIView):
 #     serializer_class = UserSeralizer
     
-
-
+@swagger_auto_schema(method='put', request_body=UserSerializer)
 @api_view(['PUT',])
 @permission_classes([IsAuthenticated, ])
-def userDetailsView(request, **kwargs):
+def UserUpdateView(request, *args, **kwargs):
     if request.method == 'PUT':
+        print(request.user)
         serializer = UserSerializer(request.user ,data = request.data, partial=True)
         if(serializer.is_valid()):
             user = serializer.save()
@@ -86,6 +91,8 @@ class UserPasswordChangeView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated, ]
 
     def update(self, request, *args, **kwargs):
+        # if(request.user is AnonymousUser):
+        #     raise AuthenticationFailed("Please provide authetication credentials")
         serializer = self.get_serializer(data=request.data)
         if(serializer.is_valid()):
             user = serializer.save()
@@ -119,11 +126,10 @@ def PasswordTokenCheckView(self, request, uidb64, token, **kwargs):
 
 class SetNewPassword(generics.GenericAPIView):
     serializer_class = SetNewPasswordSerializer
-
+    
     def patch(self, request):
         serializer = self.get_serializer(data=request.data)
         if(serializer.is_valid()):
-            print("pavan1")
             serializer.save()
             return Response({'detail':"password reset successfully completed"}, status=status.HTTP_200_OK)
         else:

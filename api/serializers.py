@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from rest_framework import serializers
 from api.custom_validators import check_empty
 from base.models import Room, Message, Topic
@@ -14,28 +13,39 @@ class RoomSerializer(serializers.ModelSerializer):
             'topic':{'required':True},
             'name':{'required':True},
             'is_private':{'required':True},
+            'participants':{'read_only':True},
         }
-    def create(self, validated_data):
+    def validate(self, attrs):
+        super().validate(attrs)
         error = {}
-        for i in validated_data:
-            if(check_empty(validated_data[i])):
+        for i in ['name', 'topic']:
+            if(check_empty(attrs[i])):
                 error['error'] = "please provide valid " + i
                 raise serializers.ValidationError(detail=error)
-        return super().create(validated_data)
+        return attrs
+
 class MessageSerializer(serializers.ModelSerializer):
     created = serializers.DateTimeField(read_only = True)
+    updated = serializers.DateTimeField(read_only = True)
     user = serializers.PrimaryKeyRelatedField(read_only = True)
-    isImage = serializers.ImageField(read_only=True)
-
+    isImage = serializers.BooleanField(read_only=True)
+    message_image = serializers.ImageField(required=False)
 
     class Meta:
         model = Message
-        fields = "__all__"
-    
+        fields = ['user', 'room', 'isImage', 'body', 'updated', 'created', 'message_image']
+
+        extra_kwargs = {
+            'room':{'required':False},
+        }
     
 
 class TopicSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Topic
-        exclude = []
+        fields = "__all__"
+
+        extra_kwargs = {
+            'name':{'required':False},
+        }

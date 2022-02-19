@@ -7,6 +7,7 @@ from django.contrib import messages
 from base.models import Request, Room, Topic , Message
 from base.forms import MessageForm, RoomForm
 from api.custom_validators import check_empty
+
 # Create your views here.
 
 # rooms = [
@@ -51,6 +52,7 @@ def room(request, pk):
                     message.isImage = True
                     message.body = message.message_image.name
                 else:
+                    message.isImage = False
                     message.body = body
                 message.user = request.user
                 message.room = room
