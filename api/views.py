@@ -2,10 +2,8 @@ from typing import OrderedDict
 from urllib import request
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import api_view
 from rest_framework import status
-from django.contrib.auth.models import AnonymousUser
 from base.models import Message, Room, Topic
 from rest_framework.views import APIView
 from .serializers import MessageSerializer, RoomSerializer, TopicSerializer
@@ -14,6 +12,8 @@ from .pagination_classes import StandardResultsSetPagination, LargeResultSetPagi
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth import get_user_model
 from rest_framework.serializers import ValidationError
+from drf_yasg.utils import swagger_auto_schema
+
 
 from api import pagination_classes
 
@@ -47,7 +47,6 @@ class CreateRoomView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data = request.POST)
         if(serializer.is_valid()):
-            print("pavan")
             return Response({'asd':"asdad"})
         else:
             return Response(serializer.errors)
@@ -69,24 +68,28 @@ class GetMessagesByRoom(generics.ListAPIView):
             if(has_permission):
                 return room.message_set.all()
             else:
-                return []
+                raise ValidationError("You don't have permission to view this room messages.")
         else:
             return []
 
-    def get(self, request, *args, **kwargs):
-        data=self.get_serializer(self.get_queryset(),many=True).data
-        if data == []:
-            context = {
-                "error" : "You don't have permission to view this room messages.",
-                }
-            return Response(context, status=status.HTTP_401_UNAUTHORIZED)
+    # def get(self, request, *args, **kwargs):
+    #     data=self.get_serializer(self.get_queryset(),many=True).data
+    #     if data == []:
+    #         context = {
+    #             "error" : "You don't have permission to view this room messages.",
+    #             }
+    #         return Response(context, status=status.HTTP_401_UNAUTHORIZED)
+    #     return super().get(request, *args, **kwargs)
 
-        return super().get(request, *args, **kwargs)
+# @api_view(['POST'])
+# @permission_classes([IsAuthenticated,])
+# def createMessage(request, pk):
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated,])
-def createMessage(request, pk):
-    if(request.method == "POST"):
+class CreateMessage(APIView):
+    serializer_class = MessageSerializer
+    permission_classes = [IsAuthenticated, ]
+    
+    def post(self, request,pk, *args, **kwargs):
         data = {}
         room = get_object_or_404(Room, id=pk)
         if(room.is_private):

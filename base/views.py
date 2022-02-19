@@ -51,6 +51,7 @@ def room(request, pk):
                     message.isImage = True
                     message.body = message.message_image.name
                 else:
+                    message.isImage = False
                     message.body = body
                 message.user = request.user
                 message.room = room
