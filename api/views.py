@@ -13,6 +13,7 @@ from rest_framework import generics
 from .pagination_classes import StandardResultsSetPagination, LargeResultSetPaginator, TestingResultsSetPagination
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth import get_user_model
+from rest_framework.serializers import ValidationError
 
 from api import pagination_classes
 
@@ -37,6 +38,24 @@ class GetRoomView(generics.RetrieveAPIView):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
 
+class CreateRoomView(generics.CreateAPIView):
+    serializer_class = RoomSerializer
+    permission_classes = [IsAuthenticated, ]
+    queryset = Room.objects.all()
+
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data = request.POST)
+        if(serializer.is_valid()):
+            print("pavan")
+            return Response({'asd':"asdad"})
+        else:
+            return Response(serializer.errors)
+
+
+        return None
+
+
 class GetMessagesByRoom(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
     serializer_class = MessageSerializer
@@ -53,6 +72,16 @@ class GetMessagesByRoom(generics.ListAPIView):
                 return []
         else:
             return []
+
+    def get(self, request, *args, **kwargs):
+        data=self.get_serializer(self.get_queryset(),many=True).data
+        if data == []:
+            context = {
+                "error" : "You don't have permission to view this room messages.",
+                }
+            return Response(context, status=status.HTTP_401_UNAUTHORIZED)
+
+        return super().get(request, *args, **kwargs)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated,])

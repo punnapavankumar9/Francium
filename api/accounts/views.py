@@ -44,6 +44,13 @@ def registerUserView(request):
             data = serializer.errors
         return Response(data)
 
+
+
+# class UserDetailsUpdate(generics.UpdateAPIView):
+#     serializer_class = UserSeralizer
+    
+
+
 @api_view(['PUT',])
 @permission_classes([IsAuthenticated, ])
 def userDetailsView(request, **kwargs):
@@ -96,8 +103,10 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         return Response({'detail':"A mail with password reset instructions has been sent to your email address."}, status=status.HTTP_200_OK)
 
-class PasswordTokenCheckView(generics.GenericAPIView):
-    def get(self, request, uidb64, token, **kwargs):
+
+@api_view(['GET',])
+def PasswordTokenCheckView(self, request, uidb64, token, **kwargs):
+    if request.method == 'POST':
         try:
             id = smart_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(id = id)
