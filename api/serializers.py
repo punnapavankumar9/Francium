@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from rest_framework import serializers
 from api.custom_validators import check_empty
 from base.models import Room, Message, Topic
@@ -27,18 +26,26 @@ class RoomSerializer(serializers.ModelSerializer):
 
 class MessageSerializer(serializers.ModelSerializer):
     created = serializers.DateTimeField(read_only = True)
+    updated = serializers.DateTimeField(read_only = True)
     user = serializers.PrimaryKeyRelatedField(read_only = True)
     isImage = serializers.BooleanField(read_only=True)
-    message_image = serializers.ImageField()
+    message_image = serializers.ImageField(required=False)
 
     class Meta:
         model = Message
         fields = ['user', 'room', 'isImage', 'body', 'updated', 'created', 'message_image']
-    
+
+        extra_kwargs = {
+            'room':{'required':False},
+        }
     
 
 class TopicSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Topic
-        exclude = []
+        fields = "__all__"
+
+        extra_kwargs = {
+            'name':{'required':False},
+        }
