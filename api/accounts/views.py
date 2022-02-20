@@ -49,10 +49,6 @@ def registerUserView(request):
             data = serializer.errors
         return Response(data)
 
-
-
-# class UserDetailsUpdate(generics.UpdateAPIView):
-#     serializer_class = UserSeralizer
     
 @swagger_auto_schema(method='put', request_body=UserSerializer)
 @api_view(['PUT',])
@@ -69,17 +65,6 @@ def UserUpdateView(request, *args, **kwargs):
             return Response(data, status=status.HTTP_202_ACCEPTED)
         else:
             return Response({'errors':serializer.errors, 'detail':"fields not updated"}, status=status.HTTP_304_NOT_MODIFIED)
-    
-    # if request.method == 'GET':
-    #     pk = int(kwargs['pk'])
-    #     try:
-    #         user = User.objects.get(pk = int(pk))
-    #     except:
-    #         return Response(data={'error':f'There is no room with id:{pk}'},status=status.HTTP_404_NOT_FOUND)
-
-    #     serializer = UserSerializer(data = user, many=False)
-
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
 class UserDetailsView(generics.RetrieveAPIView):
     queryset = User.objects.all()
@@ -91,8 +76,6 @@ class UserPasswordChangeView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated, ]
 
     def update(self, request, *args, **kwargs):
-        # if(request.user is AnonymousUser):
-        #     raise AuthenticationFailed("Please provide authetication credentials")
         serializer = self.get_serializer(data=request.data)
         if(serializer.is_valid()):
             user = serializer.save()

@@ -127,7 +127,6 @@ def profile_view(request, pk):
     context = {'user':user,'rooms':rooms, 'room_messages':room_messages, 'topics':topics, 'topics_count' : topics_count}
     return render(request, 'accounts/profile.html', context)
 
-# password reset class
 
 class CustomPasswordResetView(PasswordResetView):
     email_template_name = 'accounts/password_reset_email.html'

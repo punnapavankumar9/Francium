@@ -19,15 +19,18 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    # path('', views.getRoutes),
-    path('rooms/', views.RoomListView.as_view()),
-    path('rooms/<str:pk>/', views.GetRoomView.as_view()),
-    path('create_room/', views.CreateRoomView.as_view()),
-    path('room_msgs/<str:pk>/', views.GetMessagesByRoom.as_view()),
-    path('send_message/<str:pk>/', views.CreateMessage.as_view()),
-    path('topics/', views.TopicView.as_view()),
-    path('accounts/', include('api.accounts.urls')),
+   path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+   path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+   # path('', views.getRoutes),
+   path('rooms/', views.RoomListView.as_view()),
+   path('rooms/<str:pk>/', views.GetRoomView.as_view()),
+   path('create_room/', views.CreateRoomView.as_view()),
+   path('room_msgs/<str:pk>/', views.GetMessagesByRoom.as_view()),
+   path('send_message/<str:pk>/', views.CreateMessage.as_view()),
+   path('room_request/', views.CreateRoomRequest.as_view()),
+   path('room_requests/<str:pk>/', views.RoomRequestsView.as_view()),
+   path('manage_room_requests/<str:pk>/', views.ManageRoomRequest),
+   path('topics/', views.TopicView.as_view()),
 
+   path('accounts/', include('api.accounts.urls')),
 ]
