@@ -1,18 +1,21 @@
+from email.policy import HTTP
+from multiprocessing import AuthenticationError
 from typing import OrderedDict
 from urllib import request
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
-from base.models import Message, Room, Topic
+from base.models import Message, Request, Room, Topic
 from rest_framework.views import APIView
-from .serializers import MessageSerializer, RoomSerializer, TopicSerializer
+from .serializers import MessageSerializer, RoomSerializer, TopicSerializer, UserRoomRequestsSerializer
 from rest_framework import generics
 from .pagination_classes import StandardResultsSetPagination, LargeResultSetPaginator, TestingResultsSetPagination
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth import get_user_model
 from rest_framework.serializers import ValidationError
 from drf_yasg.utils import swagger_auto_schema,swagger_serializer_method
+from drf_yasg import openapi
 
 from api import custom_validators, pagination_classes
 
@@ -45,9 +48,13 @@ class CreateRoomView(generics.CreateAPIView):
     queryset = Room.objects.all()
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.POST)
+        print(request.data)
+        serializer = self.get_serializer(data=request.data)
         if (serializer.is_valid()):
-            return Response({'asd': "asdad"})
+            topic, created = Topic.objects.get_or_create(name = request.data.get('topic'))
+            room = serializer.save(host=request.user, topic = topic)
+            room.participants.add(request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors)
 
@@ -60,8 +67,6 @@ class GetMessagesByRoom(generics.ListAPIView):
 
     def get_queryset(self):
         pk = self.kwargs.get("pk")
-        # if not pk_int_validater(pk) :
-        #     return Response({'error':'you don\'t have access to this room please request for access'})("please provide a valid room_id(int) in url")
         room = get_object_or_404(Room, id=pk)
         if (room):
             has_permission = room.is_private == False or room.participants.filter(
@@ -74,19 +79,6 @@ class GetMessagesByRoom(generics.ListAPIView):
         else:
             return []
 
-    # def get(self, request, *args, **kwargs):
-    #     data=self.get_serializer(self.get_queryset(),many=True).data
-    #     if data == []:
-    #         context = {
-    #             "error" : "You don't have permission to view this room messages.",
-    #             }
-    #         return Response(context, status=status.HTTP_401_UNAUTHORIZED)
-    #     return super().get(request, *args, **kwargs)
-
-
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated,])
-# def createMessage(request, pk):
 
 
 class CreateMessage(APIView):
@@ -161,27 +153,55 @@ class TopicView(APIView, StandardResultsSetPagination):
             return Response(serializer.errors)
 
 
-# class GetRoomView(APIView):
 
-#     @authentication_classes([TokenAuthentication, ])
-#     @permission_classes([IsAuthenticated,])
-#     def get(self, request, pk,  *args, **kwargs):
-#         try:
-#             room = Room.objects.get(id=int(pk))
-#         except:
-#             return Response(data={'error':f'There is no room with id:{pk}'},status=status.HTTP_404_NOT_FOUND)
+class RoomRequestsView(generics.ListAPIView, StandardResultsSetPagination):
+    serializer_class = UserRoomRequestsSerializer
+    permission_classes = [IsAuthenticated,]
 
-#         serializer = RoomSerializer(room, many=False)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
+    def list(self, request, *args, **kwargs):
+        pk = self.kwargs.get("pk")
+        room = get_object_or_404(Room, pk=pk)
+        if(self.request.user != room.host):
+            return Response({'Error':"You don't have access to view this page"})
+        return super().list(request, *args, **kwargs)
 
-# @api_view(['GET'])
-# def getRooms(request):
-#     rooms = Room.objects.all()
-#     serializer = RoomSerializer(rooms, many=True)
-#     return Response(serializer.data)
 
-# @api_view(['GET'])
-# def getRoom(request, pk):
-#     room = Room.objects.get(id = pk)
-#     serializer = RoomSerializer(room, many= False)
-#     return Response(serializer.data)
+    def get_queryset(self):
+        pk = self.kwargs.get("pk")
+        room = get_object_or_404(Room, pk=pk)
+        return room.request_set.all()
+
+
+@swagger_auto_schema(method='post' ,request_body=openapi.Schema(type=openapi.TYPE_OBJECT,   properties={
+            'user_id': openapi.Schema(type=openapi.TYPE_STRING, description='Accept/Decline'),
+            }))
+@api_view(['POST', ])
+@permission_classes([IsAuthenticated, ])
+def ManageRoomRequest(request, pk, *args, **kwargs):
+    if request.method == 'POST':
+        room = get_object_or_404(Room, pk=pk)
+        join_requests = room.request_set.all()
+        for req in join_requests:
+            if(request.data.get(req.user.username) == 'Accept'):
+                room.participants.add(req.user)
+                req.delete()
+            elif(request.data.get(req.user.username) == 'Decline'):
+                req.delete()
+        return Response({'details':"success"})
+
+
+class CreateRoomRequest(generics.CreateAPIView):
+    serializer_class = UserRoomRequestsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if(serializer.is_valid()):
+            room = get_object_or_404(Room, pk= request.data['room'])
+            if not room.request_set.filter(user=request.user).exists() and request.user not in room.participants:
+                serializer.save(user_id=request.user.id)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({'detail':'request already sent to room host'})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

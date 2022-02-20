@@ -10,12 +10,6 @@ from api.custom_validators import check_empty
 
 # Create your views here.
 
-# rooms = [
-#     {'id':1, 'info':'this is about c++'},
-#     {'id':2, 'info':'learn C# buddy'},
-#     {'id':3, 'info':'please teach Kotlin'},
-# ]
-
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ""
     rooms = Room.objects.filter(
@@ -26,13 +20,12 @@ def home(request):
     room_count = rooms.count()
     paginator = Paginator(rooms, 2)
     page_number = request.GET.get('page')
-    # if(page_number is not None)
     rooms = paginator.get_page(page_number)
     room_messages = Message.objects.filter(Q(room__topic__name__icontains = q) & Q(room__is_private=False))[:5]
     topics_count = Topic.objects.count()
     topics = Topic.objects.all()[:5]
     context = {'rooms':rooms, 'topics':topics, 'room_count':room_count, 'room_messages':room_messages, 'topics_count':topics_count}
-    # messages.info(request, "dsd adsa adsd asd ads")
+    # messages.info(request, "show some info message")
     return render(request, 'base/home.html', context)
 
 
@@ -61,12 +54,6 @@ def room(request, pk):
                 return redirect('base:room', pk=room.id)
             else:
                 messages.error(request, form.errors)
-            # pass
-            # msg = Message.objects.create(
-            #     user = request.user,
-            #     body = body,
-            #     room = room
-            # )
 
         room_messages = room.message_set.all().order_by('-created')[:10][::-1]
         participants = room.participants.all()
@@ -107,13 +94,6 @@ def create_room(request):
         room.participants.add(request.user)
         return redirect('base:home')
 
-
-        # if(form.is_valid()):
-        #     room = form.save(commit=False)
-        #     room.host = request.user
-        #     form.save()
-        #     return redirect('base:home')
-
     form = RoomForm()
     topics = Topic.objects.all()
     context = {'form': form, 'topics':topics}
@@ -135,11 +115,6 @@ def update_room(request, pk):
             room.is_private = True
         room.save()
         return redirect('base:home')
-
-        # form = RoomForm(request.POST or None , instance=room)
-        # if(form.is_valid()):
-        #     form.save()
-        #     return redirect('base:home')
     topics = Topic.objects.all()
     
     context = {'form':form, 'topics':topics, 'room':room}

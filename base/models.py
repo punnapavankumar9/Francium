@@ -41,11 +41,6 @@ class Message(models.Model, ResizeImageMixin):
         if(len(self.body) > 50):
             return self.body[0:50]
         return self.body
-    
-    # def save(self, *args, **kwargs):
-    #     if self.message_image:
-    #         self.resize(self.message_image, (300, 300))
-    #     super().save(self, *args, **kwargs)
 
     class Meta:
         ordering = ['-updated', '-created']

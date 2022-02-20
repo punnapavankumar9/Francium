@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from api.custom_validators import check_empty
-from base.models import Room, Message, Topic
+from base.models import Room, Message, Topic, Request
 
 class RoomSerializer(serializers.ModelSerializer):
     host = serializers.PrimaryKeyRelatedField(read_only = True)
@@ -48,4 +48,14 @@ class TopicSerializer(serializers.ModelSerializer):
 
         extra_kwargs = {
             'name':{'required':False},
+        }
+
+class UserRoomRequestsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Request
+        fields = ['user','room', 'request_time']
+        extra_kwargs = {
+            'request_time':{'read_only':True},
+            'user':{'read_only':True},
+            'room':{'required':True}
         }

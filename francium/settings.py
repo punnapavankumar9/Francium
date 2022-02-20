@@ -176,6 +176,4 @@ SWAGGER_SETTINGS = {
             'name': 'Authorization'
         }
     },
-    # 'USE_SESSION_AUTH': False,
-    # 'JSON_EDITOR': True,
 }
