@@ -28,6 +28,7 @@ SECRET_KEY = 'django-insecure-*_j1w_*55d5e((&kv(eamtqeb_h7yb@r7p1cdw-00qhlr8v3_)
 # Application definition
 
 INSTALLED_APPS = [
+    # 'whitenoise.runserver_nostatic',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,23 +46,19 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_cleanup.apps.CleanupConfig',
     'drf_yasg',
-
-
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-
 ]
 
 ROOT_URLCONF = 'francium.urls'
@@ -166,3 +163,5 @@ SWAGGER_SETTINGS = {
         }
     },
 }
+
+CSRF_TRUSTED_ORIGINS = ['https://francium.azurewebsites.net']
