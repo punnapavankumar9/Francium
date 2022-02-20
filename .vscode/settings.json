@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/e50b3b42-51ff-4e92-aba1-01b1f4309c85/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/francium",
+    "appService.deploySubpath": "."
+}
