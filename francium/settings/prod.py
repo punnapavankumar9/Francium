@@ -5,7 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = os.environ["DJANGO_PROJECT_FRANCIUM_SECRET_KEY"]
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['francium.azurewebsites.net', '127.0.0.1']
 
