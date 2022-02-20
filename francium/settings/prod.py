@@ -3,11 +3,12 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = os.environ.get('DJANGO_SECRETE_KEY')
+SECRET_KEY = os.environ["DJANGO_PROJECT_FRANCIUM_SECRET_KEY"]
 
+print('asdadasd', SECRET_KEY)
 DEBUG = False
 
-ALLOWED_HOSTS = ['francium.azurewebsites.net']
+ALLOWED_HOSTS = ['francium.azurewebsites.net', '127.0.0.1']
 
 DATABASES = {
     'default': {
@@ -16,9 +17,9 @@ DATABASES = {
     }
 }
 
-# STATICFILES_DIRS = [
-#     BASE_DIR / 'static/',
-# ]
-# print(STATIC_ROOT)
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_DIRS = [
+    BASE_DIR / 'static/'
+]
+
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
